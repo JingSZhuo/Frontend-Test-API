@@ -1,39 +1,53 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import './App.css'
 import { useSelector, useDispatch } from 'react-redux'
-import { decrement, increment } from './redux/counter';
 import { RootState } from './redux/store';
 
-function App() {
-  //const [count, setCount] = useState(0)
+import { getBooks } from './redux/features/books';
+import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 
-  const obj = {
-    page: 1,
-    itemsPerPage: 20,
-    filters: []
+function App() {
+
+  const dispatch: Dispatch<AnyAction> = useDispatch();
+  const { books, loading } = useSelector((state: RootState) => state.books.books)
+
+  useEffect(() => {
+   dispatch( getBooks() ); 
+  }, [])
+
+  
+  //console.log('Books:', books); // Check the value of books her
+
+  if (loading) {
+    return(
+      <div>Loading...</div>
+    )
   }
 
-  const count = useSelector((state: RootState) => state.counter.count)
-  const dispatch = useDispatch();
+  if (books === undefined) {
+    return(
+      <div>
+        undefined?s
+      </div>
+    )
+  }
 
-  const TestFetch = async () => {
-    const data = await fetch('http://nyx.vima.ekt.gr:3000/api/books', {
-      method: 'POST',
-      body: JSON.stringify(obj),
-    });
-    const toJSON = await data.json();
-    console.log("Data: ", toJSON);
-  } 
+  if (!Array.isArray(books)) {
+    return <div>Loading...</div>;
+  }
+
 
   return (
     <>
-      <h1>The counter is {count}</h1>
       <div className="card">
-        <button onClick={() => dispatch( decrement() )}>decrement</button>
-        <button onClick={() => dispatch( increment() )}>increment</button>
-        <button onClick={TestFetch}>Data</button>
+        Data?:
+        {books.map((data, key) => {
+          return(
+            <p key={key}>{data['id']}</p>
+          )
+        })}
       </div>
     </>
   )
